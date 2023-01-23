@@ -33,12 +33,27 @@ button{
   margin-bottom: 100px;
 }
 
+
 //GARAGE
+
+.garage{
+  margin-top: 80px;
+}
 .header_text{
   font-size: 50px;
+  
+}
+.page_text{
+  margin: 0;
+  font-size: 40px;
 }
 .car-card{
   margin-bottom: 100px;
+}
+.block-page{
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
 }
 .car-control{
   display: flex;
@@ -72,4 +87,9 @@ button{
 .fa-car-side{
   color: #FFF;
   font-size: 100px;
+}
+
+.list{
+  display: flex;
+  column-gap: 80px;
 }

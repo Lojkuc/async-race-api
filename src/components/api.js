@@ -1,13 +1,14 @@
 import { showCars } from "./UI"
 import { generateCar } from "./utils"
-
+import { showCar } from "./UI"
 const base = 'http://127.0.0.1:3000'
 const garage = `${base}/garage`
+const engine = `${base}/engine`
 const winners  = `${base}/winners`
 
 
-export const getCars = async (page,limit = 7) =>{
-  const response = await fetch(`${garage}?_page =${page}&_limit=${limit}`)
+export const getCars = async (page = 1,limit = 7) =>{
+  const response = await fetch(`${garage}?_page=${page}&_limit=${limit}`)
   return {
     items:await response.json(),
     count:response.headers.get('X-Total-count')
@@ -17,10 +18,23 @@ export const getCars = async (page,limit = 7) =>{
 
 export const getCar = async(id) =>(await fetch(`${garage}/${id}`)).json();
 
+export const getWinners = async() =>{
+  const response = (await fetch(`${winners}`)).json()
+  let res
+  for(let el of await response){
+  res = await getCar(el.id)
+  }
+  return {
+    name:res.name,
+    id:res.id,
+    color:res.color,
+  }
+}
+
 export const createCar = async(res) => {
   const name = document.querySelector('#create-name')
   const color = document.querySelector('#create-color')
-  let resuls = {
+  let results = {
     name:name.value,
     color:color.value
   }
@@ -29,13 +43,12 @@ export const createCar = async(res) => {
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
     },
-    body: JSON.stringify(resuls)
+    body: JSON.stringify(results)
   });
   name.value = "";
   color.value = "#FFFFFF";
   await showCars()
 }
-
 
 document.addEventListener('click',async (e)=>{
   if(e.target.className == 'select'){
@@ -45,11 +58,6 @@ document.addEventListener('click',async (e)=>{
     removeCar(e)
   }
 })
-
-
-export const deleteCar = async(id,event) =>{
-  console.log(event.target);
-}
 
 
 export const selectCar = async(e) =>{
@@ -89,4 +97,21 @@ export const updateCar = async() =>{
   name.value = "";
   color.value = "#FFFFFF";
   await showCars()
+}
+
+export const startEngine = async(id) =>{
+  let car = await getCar(id);
+  let response = await fetch(`${engine}?id=${id}&status=started`, {
+    method: 'PATCH',
+  });
+  const data = await response.json()
+  console.log(data);
+}
+export const stopEngine = async(id) =>{
+  let car = await getCar(id);
+  let response = await fetch(`${engine}?id=${id}&status=stopped`, {
+    method: 'PATCH',
+  });
+  const data = await response.json()
+  console.log(data);
 }

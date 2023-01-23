@@ -1,10 +1,53 @@
-import { getCars, selectCar } from "./api"
-export const renderBody = async (e) => {
+import { createEngine, getCars, selectCar } from "./api"
+import { changePage } from "./utils";
+import { getWinners } from "./api";
+import { startEngine,stopEngine } from "./api";
+export const renderHeader = async (e) => {
   document.body.innerHTML = `
-<div class = "pages">
-  <button class="to-garage">TO GARAGE</button>
-  <button class="to-winners">TO WINNERS</button>
-</div>
+  <div class = "pages">
+    <button class="to-garage">TO GARAGE</button>
+    <button class="to-winners">TO WINNERS</button>
+  </div>
+  <div class = "content"></div>
+  `
+  document.querySelector('.to-garage').addEventListener('click',renderGarage);
+  document.querySelector('.to-winners').addEventListener('click',renderWinners);
+  
+}
+export const renderWinners = async (e) => {
+  document.querySelector('.content').innerHTML = `
+  <h2 class="header_text">Winners</h2>
+  <div class="block-page">
+    <h2 class = "page_text">Page № 1</h2>
+    <button class="prev-page">PREV</button>
+    <button class="next-page">NEXT</button>
+  </div>
+  <div class="list">
+    <div class="list-number-car-block">
+      <h1 class="list-number-car-block__text">Number</h1>
+      ${(await getWinners()).id}
+    </div>
+    <div class="list-img-car-block">
+      <h1 class="list-img-car-block__text">Car</h1>
+      <i class="fa-solid fa-car-side" style = "color:#FFFFFF"></i>   
+
+    </div>
+    <div class="list-name-car-block">
+      <h1 class="list-name-car-block__text">Name</h1>
+      ${await (await getWinners()).name}
+    </div>
+    <div class="list-count-win-block">
+      <h1 class="list-count-win-block__text">Wins</h1>
+    </div>
+    <div class="list-best-time-block">
+      <h1 class="list-best-time-block__text">Best Time</h1>
+    </div>
+  </div>
+  `
+  changePage()
+}
+export const renderGarage = async (e) => {
+  document.querySelector('.content').innerHTML = `
 <div class="block-cars">
   <div class="create-car for-input">
       <input type="text" name="" id="create-name">
@@ -23,9 +66,17 @@ export const renderBody = async (e) => {
 <button class="generate-cars">GENERATE CARS</button>
 </div>
 <h2 class="header_text"></h2>
+<div class="block-page">
+  <h2 class = "page_text">Page № 1</h2>
+  <button class="prev-page">PREV</button>
+  <button class="next-page">NEXT</button>
+</div>
+
 <div class="garage">
+${showCars()}
 </div>
 `
+changePage()
 }
 export const showCar = async (name,color,id) => { 
   document.querySelector('.garage').innerHTML +=  `
@@ -37,8 +88,8 @@ export const showCar = async (name,color,id) => {
   </div>
   <div class="car">
     <div class="block-engine">
-        <button class="engine-work">A</button>
-        <button class="engine-nowork">B</button>
+        <button class="engine-work" id = "${id}">A</button>
+        <button class="engine-nowork" id = "${id}">B</button>
     </div>
     <i class="fa-solid fa-car-side" style = "color:${color}"></i>
 
@@ -49,13 +100,25 @@ export const showCar = async (name,color,id) => {
     </div>
 </div>
 `
+const started = document.querySelectorAll('.engine-work');
+started.forEach((el)=>el.addEventListener('click',(e)=>{
+  
+  e.target.disable = false
+  startEngine(e.target.id)
+}))
+const stopped = document.querySelectorAll('.engine-nowork');
+stopped.forEach((el)=>el.addEventListener('click',(e)=>{
+  stopEngine(e.target.id)
+}))
 }
-export const showCars = async() => {
-  let res = await getCars()
+export const showCars = async(page) => {
+  if(document.querySelector('.page_text')){
+    page = document.querySelector('.page_text').innerHTML.slice(-2)
+  }
+  let res = await getCars(page)
   document.querySelector('.garage').innerHTML = '';
   for(let el of res.items){
-    showCar(el.name,el.color,el.id)
+      await showCar(el.name,el.color,el.id)
   }
-  const headerText = document.querySelector('.header_text');
-  headerText.innerHTML = `Garage (${res.count})`
+  document.querySelector('.header_text').innerHTML = `Garage (${res.count})`;
 }
