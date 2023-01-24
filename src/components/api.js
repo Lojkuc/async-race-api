@@ -14,7 +14,7 @@ export const getCars = async (page = 1,limit = 7) =>{
     count:response.headers.get('X-Total-count')
   };
 }
-
+export const getPage = async (id) => await document.querySelector('.page_text').innerHTML.slice(-2)
 
 export const getCar = async(id) =>(await fetch(`${garage}/${id}`)).json();
 
@@ -105,13 +105,36 @@ export const startEngine = async(id) =>{
     method: 'PATCH',
   });
   const data = await response.json()
-  console.log(data);
+  return data
 }
 export const stopEngine = async(id) =>{
   let car = await getCar(id);
+  console.log(id);
   let response = await fetch(`${engine}?id=${id}&status=stopped`, {
     method: 'PATCH',
   });
   const data = await response.json()
   console.log(data);
+}
+
+export const race = async (id) => {
+  const {velocity,distance} = await startEngine(id)
+  const car = document.querySelector(`#car${id}`).children[1]
+  console.log(car);
+  let pos = 110
+  let interval = setInterval(frame,1);
+  function frame(){
+    if(pos > document.body.clientWidth - 280){
+      clearInterval(interval)
+    }
+    else{
+      pos+=5
+      car.style.left = pos + "px"
+    }
+  }
+}
+
+export const resetRace = async (id) => {
+  const {velocity,distance} = await stopEngine(id)
+  const car = document.querySelector(`#car${id}`).children[1]
 }

@@ -1,7 +1,9 @@
-import { createEngine, getCars, selectCar } from "./api"
+import { createEngine, getCars, race, resetRace, selectCar } from "./api"
 import { changePage } from "./utils";
 import { getWinners } from "./api";
+import { getPage } from "./api";
 import { startEngine,stopEngine } from "./api";
+alert("Если есть возможность, посмотрите ближе к дедлайну, не успел сделать всё")
 export const renderHeader = async (e) => {
   document.body.innerHTML = `
   <div class = "pages">
@@ -76,6 +78,7 @@ export const renderGarage = async (e) => {
 ${showCars()}
 </div>
 `
+await funcRace()
 changePage()
 }
 export const showCar = async (name,color,id) => { 
@@ -86,7 +89,7 @@ export const showCar = async (name,color,id) => {
     <button class="remove" id="${id}">REMOVE</button>
     <span class="car-name">${name}</span>
   </div>
-  <div class="car">
+  <div class="car" id = "car${id}">
     <div class="block-engine">
         <button class="engine-work" id = "${id}">A</button>
         <button class="engine-nowork" id = "${id}">B</button>
@@ -100,17 +103,41 @@ export const showCar = async (name,color,id) => {
     </div>
 </div>
 `
+
+
 const started = document.querySelectorAll('.engine-work');
-started.forEach((el)=>el.addEventListener('click',(e)=>{
-  
-  e.target.disable = false
-  startEngine(e.target.id)
+started.forEach((el)=>el.addEventListener('click',async()=>{
+  race(el.id)
 }))
 const stopped = document.querySelectorAll('.engine-nowork');
 stopped.forEach((el)=>el.addEventListener('click',(e)=>{
   stopEngine(e.target.id)
 }))
 }
+export const funcRace = async () =>{
+  const raceAllBtn = document.querySelector('.race');
+  raceAllBtn.addEventListener('click',async(e)=>{
+    let page = await getPage()
+    const arrId = (await getCars(page)).items
+    for(let el of arrId){
+      race(el.id)
+    }
+  })
+}
+
+export const funcStopRace = async () =>{
+  const raceStopBtn = document.querySelector('.reset')
+  raceStopBtn.addEventListener('click',async(e)=>{
+    let page = await getPage()
+    const arrId = (await getCars(page)).items
+    console.log(arrId);
+    for(let el of arrId){
+      resetRace(el.id)
+    }
+  })
+}
+
+
 export const showCars = async(page) => {
   if(document.querySelector('.page_text')){
     page = document.querySelector('.page_text').innerHTML.slice(-2)
@@ -122,3 +149,6 @@ export const showCars = async(page) => {
   }
   document.querySelector('.header_text').innerHTML = `Garage (${res.count})`;
 }
+
+
+

@@ -65,6 +65,7 @@ button{
   font-size: 30px;
 }
 .car{
+  position: relative;
   display: flex;
   column-gap: 10px;
 }
@@ -85,6 +86,9 @@ button{
   height: 50px;
 }
 .fa-car-side{
+  position: absolute;
+  top: -35px;
+  left: 110px;
   color: #FFF;
   font-size: 100px;
 }
