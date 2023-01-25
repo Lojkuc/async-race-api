@@ -100,35 +100,53 @@ export const updateCar = async() =>{
 }
 
 export const startEngine = async(id) =>{
-  let car = await getCar(id);
   let response = await fetch(`${engine}?id=${id}&status=started`, {
     method: 'PATCH',
   });
   const data = await response.json()
   return data
 }
+export const drive = async(id) =>{
+  let response = await fetch(`${engine}?id=${id}&status=drive`, {
+    method: 'PATCH',
+  });
+  if(response.status == 500){
+    return "stop"
+  }
+  const data = await response.json()
+  return data
+}
 export const stopEngine = async(id) =>{
   let car = await getCar(id);
-  console.log(id);
   let response = await fetch(`${engine}?id=${id}&status=stopped`, {
     method: 'PATCH',
   });
   const data = await response.json()
-  console.log(data);
+  return data
 }
 
 export const race = async (id) => {
   const {velocity,distance} = await startEngine(id)
+  const run = drive(id)
+  let status;
+  run.then((data)=>status = data)
   const car = document.querySelector(`#car${id}`).children[1]
-  console.log(car);
   let pos = 110
-  let interval = setInterval(frame,1);
-  function frame(){
+  let interval = setInterval(frame,(distance/velocity)/1000);
+  let time1 = Date.now()
+  let arrCar = []
+  async function frame(){
+    if(status == "stop"){
+      return
+    }
     if(pos > document.body.clientWidth - 280){
       clearInterval(interval)
+      let time2 = Date.now()
+      arrCar.push(id)
+      console.log(arrCar);
     }
     else{
-      pos+=5
+      pos+=2
       car.style.left = pos + "px"
     }
   }
@@ -137,4 +155,47 @@ export const race = async (id) => {
 export const resetRace = async (id) => {
   const {velocity,distance} = await stopEngine(id)
   const car = document.querySelector(`#car${id}`).children[1]
+  let pos = 110
+  car.style.left = pos + "px"
+}
+
+export const createWinner = async (id,time) =>{
+  let results = {
+    id:id,
+    wins:1,
+    time:time
+  }
+  let response = await fetch(`${winners}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(results)
+  });
+}
+
+export const getWinner = async(id) =>(await fetch(`${winners}/${id}`)).json();
+
+export const updateWinner = async(id,time) =>{
+  let res = {
+    win:1,
+    time:time
+  }
+  let response = await fetch(`http://127.0.0.1:3000/winners/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(res)
+  });
+}
+
+export const becameWinner = async(id,time) =>{
+  console.log("HERE");
+  if (Object.keys(await getWinner(id)).length == 0) {
+    createWinner(id,time)
+  }
+  else{
+    updateWinner(id,(time))
+  }
 }

@@ -3,7 +3,6 @@ import { changePage } from "./utils";
 import { getWinners } from "./api";
 import { getPage } from "./api";
 import { startEngine,stopEngine } from "./api";
-alert("Если есть возможность, посмотрите ближе к дедлайну, не успел сделать всё")
 export const renderHeader = async (e) => {
   document.body.innerHTML = `
   <div class = "pages">
@@ -79,6 +78,7 @@ ${showCars()}
 </div>
 `
 await funcRace()
+await funcStopRace()
 changePage()
 }
 export const showCar = async (name,color,id) => { 
@@ -110,13 +110,14 @@ started.forEach((el)=>el.addEventListener('click',async()=>{
   race(el.id)
 }))
 const stopped = document.querySelectorAll('.engine-nowork');
-stopped.forEach((el)=>el.addEventListener('click',(e)=>{
-  stopEngine(e.target.id)
+stopped.forEach((el)=>el.addEventListener('click',async()=>{
+  resetRace(el.id)
 }))
 }
 export const funcRace = async () =>{
   const raceAllBtn = document.querySelector('.race');
   raceAllBtn.addEventListener('click',async(e)=>{
+    console.log("HERE");
     let page = await getPage()
     const arrId = (await getCars(page)).items
     for(let el of arrId){
@@ -130,7 +131,6 @@ export const funcStopRace = async () =>{
   raceStopBtn.addEventListener('click',async(e)=>{
     let page = await getPage()
     const arrId = (await getCars(page)).items
-    console.log(arrId);
     for(let el of arrId){
       resetRace(el.id)
     }
