@@ -14,6 +14,7 @@ export const getCars = async (page = 1,limit = 7) =>{
     count:response.headers.get('X-Total-count')
   };
 }
+
 export const getPage = async (id) => await document.querySelector('.page_text').innerHTML.slice(-2)
 
 export const getCar = async(id) =>(await fetch(`${garage}/${id}`)).json();
